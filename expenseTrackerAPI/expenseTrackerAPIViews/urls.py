@@ -7,8 +7,8 @@ urlpatterns = [
     path('/user/remind', userViews.remindToken),
     path('/user/logout', userViews.logout),
 
-    path('/operation/add', opreationViews.signup),
-    path('/operation/delete', opreationViews.signup),
-    path('/operation/update', opreationViews.signup),
-    path('/operation/get', opreationViews.signup)
+    path('/operation/add', opreationViews.addExpense),
+    path('/operation/delete', opreationViews.deleteExpenses),
+    path('/operation/update', opreationViews.updateExpenses),
+    path('/operation/get', opreationViews.getExpenses)
 ]

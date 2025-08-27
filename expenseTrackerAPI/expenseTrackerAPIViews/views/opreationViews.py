@@ -7,7 +7,7 @@ def addExpense(request):
     pass
 
 @api_view(['POST'])
-def updateExpense(request):
+def updateExpenses(request):
     pass
 
 @api_view(['POST'])
