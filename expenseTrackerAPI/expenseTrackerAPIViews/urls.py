@@ -1,4 +1,4 @@
-from expenseTrackerAPI.expenseTrackerAPIViews.views import userViews, opreationViews
+from expenseTrackerAPIViews.views import userViews, opreationViews
 from django.urls import path
 
 urlpatterns = [
