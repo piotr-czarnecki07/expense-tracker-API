@@ -13,7 +13,7 @@ class User(models.Model):
 
 class Expense(models.Model):
     title = models.CharField(max_length=50)
-    amount = models.IntegerField()
+    amount = models.FloatField()
     categories = models.JSONField(default=list)
 
     createdAt = models.DateTimeField(auto_now_add=True)
