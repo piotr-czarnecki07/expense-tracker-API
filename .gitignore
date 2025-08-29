@@ -10,3 +10,6 @@ expenseTrackerAPI/expenseTrackerAPIViews/hashes.py
 
 # db
 *.sqlite3
+
+# local files
+debug.txt

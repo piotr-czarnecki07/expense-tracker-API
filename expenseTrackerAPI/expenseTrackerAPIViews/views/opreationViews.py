@@ -69,24 +69,41 @@ def updateExpenses(request):
     if 'expenses' not in request.data:
         return Response({'error': 'Expenses field is missing'}, status=st.HTTP_400_BAD_REQUEST)
 
-    for expense in request.data['expenses']:
-        if type(expense) is not dict:
-            return Response({'error': 'Expense must be a json object'}, status=st.HTTP_400_BAD_REQUEST)
+    try:
+        for expense in request.data['expenses']:
+            if type(expense) is not dict:
+                return Response({'error': 'Expense must be a json object'}, status=st.HTTP_400_BAD_REQUEST)
 
-        if expense.get('id') is None:
-            return Response({'error': 'Expense must contain an ID number'}, status=st.HTTP_400_BAD_REQUEST)
+            if expense.get('id') is None:
+                return Response({'error': 'Expense must contain an ID number'}, status=st.HTTP_400_BAD_REQUEST)
+            else:
+                expense['id'] = int(expense['id'])
+
+    except ValueError:
+        return Response({'error': 'ID must be an integer'}, status=st.HTTP_400_BAD_REQUEST)
 
     try:
         objects = []
 
         for expense in request.data['expenses']:
-            expense_object = Expense.objects.filter(id=expense.get('id')).first()
+            expense_object = Expense.objects.filter(id=expense['id']).first()
 
             if expense_object is None:
-                return Response({'error': f"Expense with ID {expense.get('id')} was not found"}, status=st.HTTP_404_NOT_FOUND)
+                return Response({'error': f"Expense with ID {expense['id']} was not found"}, status=st.HTTP_404_NOT_FOUND)
             
             for param in ('title', 'amount', 'categories'):
                 if param in expense:
+                    if param == 'categories':
+                        categories_names = []
+
+                        for c in expense['categories']:
+                            if c in categories_table.keys():
+                                categories_names.append(categories_table.get(c))
+                            else:
+                                return Response({'error': f"Provided category number for expense with ID {expense['id']} is out of range (1-9)"}, status=st.HTTP_400_BAD_REQUEST)
+                            
+                        expense['categories'] = categories_names
+
                     setattr(expense_object, param, expense[param])
 
             expense_object.save()

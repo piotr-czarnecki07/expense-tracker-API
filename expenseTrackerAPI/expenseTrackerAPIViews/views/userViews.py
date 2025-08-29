@@ -13,7 +13,7 @@ import random
 def generate_token() -> str:
     token = ''
     for _ in range(50):
-        token += random.choice(HASH_TABLE.keys())
+        token += random.choice(list(HASH_TABLE.keys()))
 
     return token
 
