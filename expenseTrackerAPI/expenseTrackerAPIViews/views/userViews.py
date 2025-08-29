@@ -82,12 +82,13 @@ def login(request):
 
     try:
         user = User.objects.filter(email=request.data['email']).first()
+
         if user is None:
            return Response({'error': 'This email is not assigned to any user'}, status=st.HTTP_404_NOT_FOUND)
 
-        if user.password !=  hash_string(request.data['password']):
+        if user.password != hash_string(request.data['password']):
             return Response({'error': 'Password is incorrect'}, status=st.HTTP_403_FORBIDDEN)
-        
+
         token = generate_token()
 
         user.token = hash_string(token)
@@ -108,7 +109,35 @@ def login(request):
 @api_view(['POST'])
 @get_data
 def remindToken(request):
-    pass
+    for param in ('email', 'password'):
+        if param in request.data:
+            return Response({'error': 'Email or password is missing'}, status=st.HTTP_400_BAD_REQUEST)
+        
+    try:
+        user = User.objects.filter(email=request.data['email']).first()
+
+        if user is None:
+           return Response({'error': 'This email is not assigned to any user'}, status=st.HTTP_404_NOT_FOUND)
+
+        if user.password != hash_string(request.data['password']):
+            return Response({'error': 'Password is incorrect'}, status=st.HTTP_403_FORBIDDEN)
+        
+        if user.token == 'logged_out':
+            return Response({'message': 'User is not logged in'}, status=st.HTTP_200_OK)
+
+        token = dehash_string(user.token)
+
+    except ValidationError:
+        return Response({'error': 'Username or email are too long'}, status=st.HTTP_400_BAD_REQUEST)
+
+    except DatabaseError as e:
+        return Response({'error': f'Database error: {e}'}, status=st.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    except (KeyError, ValueError):
+        return Response({'error': 'Request body is invalid. Parameters are of wrong data type'}, status=st.HTTP_400_BAD_REQUEST)
+
+    else:
+        return Response({'token': token}, status=st.HTTP_200_OK)
 
 @api_view(['POST'])
 @check_token
