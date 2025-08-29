@@ -10,16 +10,16 @@ from expenseTrackerAPIViews.serializers import ExpenseSerializer
 from expenseTrackerAPIViews.decorators import get_data, check_token
 
 categories_table = {
-        1: 'Groceries',
-        2: 'Leisure',
-        3: 'Electronics',
-        4: 'Utilities',
-        5: 'Clothing',
-        6: 'Health',
-        7: 'School',
-        8: 'Home',
-        9: 'Other'
-    }
+    1: 'Groceries',
+    2: 'Leisure',
+    3: 'Electronics',
+    4: 'Utilities',
+    5: 'Clothing',
+    6: 'Health',
+    7: 'School',
+    8: 'Home',
+    9: 'Other'
+}
 
 @api_view(['POST'])
 @check_token
