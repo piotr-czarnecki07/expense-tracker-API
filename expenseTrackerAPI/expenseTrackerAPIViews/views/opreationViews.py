@@ -5,21 +5,11 @@ from rest_framework import status as st
 from django.core.exceptions import ValidationError
 from django.db import DatabaseError
 
-from db_model.models import User, Expense
+from db_model.models import Expense
 from expenseTrackerAPIViews.serializers import ExpenseSerializer
 from expenseTrackerAPIViews.decorators import get_data, check_token
 
-import json
-
-@api_view(['POST'])
-@check_token
-@get_data
-def addExpense(request):
-    for param in ('title', 'amount', 'categories'):
-        if param not in request.data:
-            return Response({'error': 'Title, amount or categories field was not provided'}, status=st.HTTP_400_BAD_REQUEST)
-
-    categories_table = {
+categories_table = {
         1: 'Groceries',
         2: 'Leisure',
         3: 'Electronics',
@@ -31,10 +21,18 @@ def addExpense(request):
         9: 'Other'
     }
 
+@api_view(['POST'])
+@check_token
+@get_data
+def addExpense(request):
+    for param in ('title', 'amount', 'categories'):
+        if param not in request.data:
+            return Response({'error': 'Title, amount or categories field was not provided'}, status=st.HTTP_400_BAD_REQUEST)
+
     try:
         title = request.data['title']
         amount = float(request.data['amount'])
-        categories = json.loads(request.data['categories'])
+        categories = request.data['categories']
 
         categories_names = []
 
@@ -53,7 +51,7 @@ def addExpense(request):
         serializer = ExpenseSerializer(expense)
 
     except ValidationError:
-        return Response({'error': 'Username or email are too long'}, status=st.HTTP_400_BAD_REQUEST)
+        return Response({'error': 'Title, amount or one of the catiegories is too long'}, status=st.HTTP_400_BAD_REQUEST)
 
     except DatabaseError as e:
         return Response({'error': f'Database error: {e}'}, status=st.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -68,7 +66,43 @@ def addExpense(request):
 @check_token
 @get_data
 def updateExpenses(request):
-    pass
+    if 'expenses' not in request.data:
+        return Response({'error': 'Expenses field is missing'}, status=st.HTTP_400_BAD_REQUEST)
+
+    for expense in request.data['expenses']:
+        if type(expense) is not dict:
+            return Response({'error': 'Expense must be a json object'}, status=st.HTTP_400_BAD_REQUEST)
+
+        if expense.get('id') is None:
+            return Response({'error': 'Expense must contain an ID number'}, status=st.HTTP_400_BAD_REQUEST)
+
+    try:
+        objects = []
+
+        for expense in request.data['expenses']:
+            expense_object = Expense.objects.filter(id=expense.get('id')).first()
+
+            if expense_object is None:
+                return Response({'error': f"Expense with ID {expense.get('id')} was not found"}, status=st.HTTP_404_NOT_FOUND)
+            
+            for param in ('title', 'amount', 'categories'):
+                if param in expense:
+                    setattr(expense_object, param, expense[param])
+
+            expense_object.save()
+
+            objects.append(expense_object)
+
+        serializer = ExpenseSerializer(objects, many=True)
+
+    except ValidationError:
+        return Response({'error': 'Title, amount or one of the expenses is too long'}, status=st.HTTP_400_BAD_REQUEST)
+
+    except DatabaseError as e:
+        return Response({'error': f'Database error: {e}'}, status=st.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    else:
+        return Response(serializer.data, status=st.HTTP_200_OK)
 
 @api_view(['POST'])
 @check_token
