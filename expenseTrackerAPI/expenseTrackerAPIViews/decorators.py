@@ -2,7 +2,6 @@ from rest_framework import status as st
 from rest_framework.response import Response
 
 from db_model.models import User
-from views.userViews import hash_string
 
 from functools import wraps
 import json
@@ -18,6 +17,7 @@ def get_data(view):
     return wrapper
 
 def check_token(view):
+    from .views.userViews import hash_string
     @wraps(view)
     def wrapper(request):
         if request.data.get('token') == None:

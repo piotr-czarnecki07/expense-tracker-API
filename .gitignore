@@ -7,3 +7,6 @@ venv/
 
 # hashes
 expenseTrackerAPI/expenseTrackerAPIViews/hashes.py
+
+# db
+*.sqlite3

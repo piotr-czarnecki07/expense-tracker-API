@@ -7,7 +7,7 @@ from django.db import DatabaseError
 from expenseTrackerAPIViews.decorators import get_data, check_token
 from db_model.models import User
 
-from hashes import HASH_TABLE, DEHASH_TABLE
+from expenseTrackerAPIViews.hashes import HASH_TABLE, DEHASH_TABLE
 import random
 
 def generate_token() -> str:
