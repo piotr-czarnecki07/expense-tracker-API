@@ -173,4 +173,12 @@ def remindToken(request):
 @check_token
 @get_data
 def logout(request):
-    pass
+    try:
+        request.user.token = 'logged_out'
+        request.user.save()
+
+    except DatabaseError as e:
+        return Response({'error': f'Database error: {e}'}, status=st.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    else:
+        return Response({'message': 'User logged out successfully'}, status=st.HTTP_200_OK)
