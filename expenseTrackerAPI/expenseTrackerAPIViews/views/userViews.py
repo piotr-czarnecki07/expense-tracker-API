@@ -1,6 +1,37 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status as st
+from django.core.exceptions import ValidationError
+from django.db import DatabaseError
+
+from expenseTrackerAPIViews.decorators import get_data
+from db_model.models import User, Expense
+from expenseTrackerAPIViews.serializers import ExpenseSerializer
+
+from hashes import HASH_TABLE, DEHASH_TABLE
+import random
+
+def generate_token() -> str:
+    token = ''
+    for _ in range(50):
+        token += random.choice(HASH_TABLE.keys())
+
+    return token
+
+def hash_string(string: str) -> str:
+    new_string = ''
+    for i in string:
+        new_string += HASH_TABLE[i]
+
+    return new_string
+
+def dehash_string(string: str) -> str:
+    new_string = ''
+    for i in string:
+        new_string += DEHASH_TABLE[i]
+
+    return new_string
+
 
 from django.core.exceptions import ValidationError
 from django.db import DatabaseError
@@ -57,7 +88,6 @@ def signup(request):
     try:
         if User.objects.filter(email=request.data['email']).first() is not None:
             return Response({'error': 'This email is already taken'}, status=st.HTTP_400_BAD_REQUEST)
-
         user = User(username=username, email=email, password=hash_string(password), token=hash_string(token), expenses=[])
         user.save()
 
