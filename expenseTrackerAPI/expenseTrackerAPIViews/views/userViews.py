@@ -91,7 +91,7 @@ def login(request):
         user.save()
 
     except ValidationError:
-        return Response({'error': 'Username or email are too long'}, status=st.HTTP_400_BAD_REQUEST)
+        return Response({'error': 'Email or password are too long'}, status=st.HTTP_400_BAD_REQUEST)
 
     except DatabaseError as e:
         return Response({'error': f'Database error: {e}'}, status=st.HTTP_500_INTERNAL_SERVER_ERROR)
