@@ -55,6 +55,9 @@ def signup(request):
     token = generate_token()
 
     try:
+        if User.objects.filter(email=request.data['email']).first() is not None:
+            return Response({'error': 'This email is already taken'}, status=st.HTTP_400_BAD_REQUEST)
+
         user = User(username=username, email=email, password=hash_string(password), token=hash_string(token), expenses=[])
         user.save()
 
@@ -68,7 +71,7 @@ def signup(request):
         return Response({'error': 'Request body is invalid. Parameters are of wrong data type'}, status=st.HTTP_400_BAD_REQUEST)
 
     else:
-        return Response({'message': 'User account created'}, status=st.HTTP_201_CREATED)
+        return Response({'token': token}, status=st.HTTP_201_CREATED)
 
 @api_view(['POST'])
 @get_data
