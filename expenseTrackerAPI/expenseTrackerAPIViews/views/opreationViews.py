@@ -56,7 +56,7 @@ def addExpense(request):
     except DatabaseError as e:
         return Response({'error': f'Database error: {e}'}, status=st.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    except (KeyError, ValueError):
+    except (KeyError, ValueError, TypeError):
         return Response({'error': 'Request body is invalid. Parameters are of wrong data type'}, status=st.HTTP_400_BAD_REQUEST)
 
     else:
@@ -79,7 +79,7 @@ def updateExpenses(request):
             else:
                 expense['id'] = int(expense['id'])
 
-    except ValueError:
+    except (ValueError, TypeError):
         return Response({'error': 'ID must be an integer'}, status=st.HTTP_400_BAD_REQUEST)
 
     try:
@@ -125,7 +125,23 @@ def updateExpenses(request):
 @check_token
 @get_data
 def getExpenses(request):
-    pass
+    if 'expenses' not in request.data:
+        return Response({'error': 'Expenses field is missing'}, status=st.HTTP_400_BAD_REQUEST)
+
+    try:
+        expenses = [int(expense_id) for expense_id in request.data['expenses']]
+        expenses_objects = Expense.objects.filter(id__in=expenses)
+
+        serializer = ExpenseSerializer(expenses_objects, many=True)
+
+    except (TypeError, ValueError):
+        return Response({'error': 'ID must be an integer'}, status=st.HTTP_400_BAD_REQUEST)
+
+    except DatabaseError as e:
+        return Response({'error': f'Database error: {e}'}, status=st.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    else:
+        return Response(serializer.data, status=st.HTTP_200_OK)
 
 @api_view(['POST'])
 @check_token
