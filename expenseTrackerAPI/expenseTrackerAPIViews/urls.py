@@ -10,5 +10,6 @@ urlpatterns = [
     path('operation/add/', opreationViews.add_expense),
     path('operation/delete/', opreationViews.delete_expenses),
     path('operation/update/', opreationViews.update_expenses),
-    path('operation/get/', opreationViews.get_expenses)
+    path('operation/get/', opreationViews.get_expenses),
+    path('operation/getall/', opreationViews.get_all_expenses)
 ]

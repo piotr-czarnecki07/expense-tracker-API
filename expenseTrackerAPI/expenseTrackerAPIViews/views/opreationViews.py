@@ -169,3 +169,17 @@ def delete_expenses(request):
 
     else:
         return Response(serializer.data, status=st.HTTP_204_NO_CONTENT)
+
+@api_view(['POST'])
+@check_token
+@get_data
+def get_all_expenses(request):
+    try:
+        expenses = Expense.objects.filter(id__in=request.user.expenses)
+        serializer = ExpenseSerializer(expenses, many=True)
+
+    except DatabaseError as e:
+        return Response({'error': f'Database error: {e}'}, status=st.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    else:
+        return Response(serializer.data, status=st.HTTP_200_OK)
