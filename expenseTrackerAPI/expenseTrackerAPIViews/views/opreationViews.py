@@ -147,4 +147,25 @@ def get_expenses(request):
 @check_token
 @get_data
 def delete_expenses(request):
-    pass
+    if 'expenses' not in request.data:
+        return Response({'error': 'Expenses field is missing'}, status=st.HTTP_400_BAD_REQUEST)
+
+    try:
+        expenses = [int(expense_id) for expense_id in request.data['expenses']]
+        list_of_deleted = []
+
+        for expense_id in expenses:
+            expense = Expense.objects.filter(id=expense_id).first()
+            list_of_deleted.append(expense)
+            expense.delete()
+
+        serializer = ExpenseSerializer(list_of_deleted, many=True)
+
+    except (TypeError, ValueError):
+        return Response({'error': 'ID must be an integer'}, status=st.HTTP_400_BAD_REQUEST)
+
+    except DatabaseError as e:
+        return Response({'error': f'Database error: {e}'}, status=st.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    else:
+        return Response(serializer.data, status=st.HTTP_204_NO_CONTENT)
