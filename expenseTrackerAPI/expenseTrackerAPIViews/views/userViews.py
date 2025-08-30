@@ -106,7 +106,7 @@ def login(request):
 @get_data
 def remind_token(request):
     for param in ('email', 'password'):
-        if param in request.data:
+        if param not in request.data:
             return Response({'error': 'Email or password is missing'}, status=st.HTTP_400_BAD_REQUEST)
         
     try:
