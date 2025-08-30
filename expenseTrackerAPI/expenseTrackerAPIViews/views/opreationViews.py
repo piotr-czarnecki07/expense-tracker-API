@@ -24,7 +24,7 @@ categories_table = {
 @api_view(['POST'])
 @check_token
 @get_data
-def addExpense(request):
+def add_expense(request):
     for param in ('title', 'amount', 'categories'):
         if param not in request.data:
             return Response({'error': 'Title, amount or categories field was not provided'}, status=st.HTTP_400_BAD_REQUEST)
@@ -65,7 +65,7 @@ def addExpense(request):
 @api_view(['POST'])
 @check_token
 @get_data
-def updateExpenses(request):
+def update_expenses(request):
     if 'expenses' not in request.data:
         return Response({'error': 'Expenses field is missing'}, status=st.HTTP_400_BAD_REQUEST)
 
@@ -124,7 +124,7 @@ def updateExpenses(request):
 @api_view(['POST'])
 @check_token
 @get_data
-def getExpenses(request):
+def get_expenses(request):
     if 'expenses' not in request.data:
         return Response({'error': 'Expenses field is missing'}, status=st.HTTP_400_BAD_REQUEST)
 
@@ -146,5 +146,5 @@ def getExpenses(request):
 @api_view(['POST'])
 @check_token
 @get_data
-def deleteExpenses(request):
+def delete_expenses(request):
     pass
